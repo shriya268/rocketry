@@ -5,8 +5,10 @@ public class rocketry {
         return force;
     }
 
-    public static double Velocity(double time){
-        
+    public static double Velocity(double time, double thrust, double massOriginal, double propellantMassOriginal){
+        double dragInitial=0;
+        double instaAccel=
+
     }
 
     public static double Apogee(double impulse, double thrustAvg, double diameter, double mass, double propMass, double currentTime){
