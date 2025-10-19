@@ -18,38 +18,48 @@ public class rocketry {
         //takes average thrust from motor specifications as input
         double altitude=0.0;
         double time=0.0;
-        double timeChange=0.01;
+        double timeChange=1;
         double burnTime=impulse/thrust;
-        double massPerTime=mass-(mass-(fuelMass))*(time/(burnTime));
         double vOld=0.0;
         double vNew=0.0;
         double drag=0;
         double accel;
+        double currentMass = 0;
+        double dryMass=mass-fuelMass;
         XYSeries velocitySeries= new XYSeries("Veloicty");
         XYSeriesCollection dataset= new XYSeriesCollection(velocitySeries);
-        JFreeChart chart=ChartFactory.createXYLineChart("Velocity v.s. Time", "Time (s)", "Velocity (m/s)",dataset);
-        ChartPanel chartPanel=new ChartPanel(chart);
-        JFrame frame=new JFrame("Veloicty graph");
-        frame.add(chartPanel);
-        frame.setVisible(true);
 
-        while (vNew>=0.0){
+
+        while (time<burnTime+10){
             if (time<=burnTime){
-            thrust=0;
+            currentMass=mass-(fuelMass*(time/burnTime));
             }
+            else{
+                currentMass=dryMass;
+                thrust=0;
+            }
+            
             //find current veloicty at each time and add to graph
-            drag=(0.5*1.225*0.8*Math.pow(radius,2)*Math.PI*vOld);
-            accel=((thrust-drag-(massPerTime*9.8)))/massPerTime;
+            drag=(0.5*1.225*0.8*Math.pow(radius,2)*Math.PI*Math.pow(vOld,2));
+            accel=((thrust-drag-(currentMass*9.8)))/currentMass;
             vNew=vOld+(accel)*(timeChange);
+            
             velocitySeries.add(time,vNew);
-            vNew=vOld;
+            vOld=vNew;
             time+=timeChange;
         }
-
-
-
-
+        JFreeChart chart=ChartFactory.createXYLineChart("Velocity v.s. Time", "Time (s)", "Velocity (m/s)",dataset);
+        ChartPanel chartPanel=new ChartPanel(chart);
+        JFrame frame=new JFrame("Velocity graph");
+        frame.add(chartPanel);
+        frame.pack();
+        frame.setVisible(true);
     }
+
+
+
+
+    
 /* 
     public static double Apogee(double impulse, double thrustAvg, double diameter, double mass, double propMass, double currentTime){
         double airDensity=1.225;
@@ -61,7 +71,7 @@ public class rocketry {
     }
 */
     public static void main(String[] args) {
-        updateVelocity(2.0, 4.0, 18.3, 5.6, 2.4);
+        updateVelocity(20.0, 0.04, 1.0, 0.5, 20.0);
     }
 }
 
