@@ -7,15 +7,9 @@ import javax.swing.*;
 
 
 public class rocketry {
-    /* 
-    public static double Force(double mass) {
-        double accel=9.8;
-        double force = (mass)*(accel);
-        return force;
-    }
-*/
-    public static void updateVelocity(double thrust, double radius, double mass, double fuelMass, double impulse){
+    public static void showGraphs(double thrust, double radius, double mass, double fuelMass, double impulse){
         //takes average thrust from motor specifications as input
+        //velocity-time graph
         double altitude=0.0;
         double time=0.0;
         double timeChange=1;
@@ -26,11 +20,13 @@ public class rocketry {
         double accel;
         double currentMass = 0;
         double dryMass=mass-fuelMass;
-        XYSeries velocitySeries= new XYSeries("Veloicty");
-        XYSeriesCollection dataset= new XYSeriesCollection(velocitySeries);
+        XYSeries velocitySeries=new XYSeries("Velocity");
+        XYSeriesCollection velocityDataset=new XYSeriesCollection(velocitySeries);
+        XYSeries altitudeSeries=new XYSeries("Altitude");
+        XYSeriesCollection altitudeDataset=new XYSeriesCollection(altitudeSeries);
 
-
-        while (time<burnTime+10){
+        //when fuel burns out, thrust becomes 0 which makes the mass of the rocket the dryMass
+        while (altitude>=0){
             if (time<=burnTime){
             currentMass=mass-(fuelMass*(time/burnTime));
             }
@@ -43,17 +39,30 @@ public class rocketry {
             drag=(0.5*1.225*0.8*Math.pow(radius,2)*Math.PI*Math.pow(vOld,2));
             accel=((thrust-drag-(currentMass*9.8)))/currentMass;
             vNew=vOld+(accel)*(timeChange);
-            
-            velocitySeries.add(time,vNew);
+            velocitySeries.add(time,vOld);
+            altitude=altitude+(vOld*timeChange);
+            altitudeSeries.add(time,altitude);
             vOld=vNew;
             time+=timeChange;
         }
-        JFreeChart chart=ChartFactory.createXYLineChart("Velocity v.s. Time", "Time (s)", "Velocity (m/s)",dataset);
-        ChartPanel chartPanel=new ChartPanel(chart);
-        JFrame frame=new JFrame("Velocity graph");
-        frame.add(chartPanel);
-        frame.pack();
-        frame.setVisible(true);
+        //show velocity-time graph
+        JFreeChart velocityChart=ChartFactory.createXYLineChart("Velocity v.s. Time", "Time (s)", "Velocity (m/s)",velocityDataset);
+        ChartPanel velocityChartPanel=new ChartPanel(velocityChart);
+        JFrame velocityFrame=new JFrame("Velocity graph");
+        velocityFrame.add(velocityChartPanel);
+        velocityFrame.pack();
+        velocityFrame.setVisible(true);
+
+        //show altitude-time graph
+        JFreeChart altitudeChart=ChartFactory.createXYLineChart("Altitude v.s. Time", "Time (s)", "Altitude (m)", altitudeDataset);
+        ChartPanel altitudeChartPanel=new ChartPanel(altitudeChart);
+        JFrame altitudeFrame=new JFrame("Altitude graph");
+        altitudeFrame.add(altitudeChartPanel);
+        altitudeFrame.pack();
+        altitudeFrame.setVisible(true);
+
+
+
     }
 
 
@@ -71,7 +80,7 @@ public class rocketry {
     }
 */
     public static void main(String[] args) {
-        updateVelocity(20.0, 0.04, 1.0, 0.5, 20.0);
+        showGraphs(20.0, 0.04, 1.0, 0.5, 20.0);
     }
 }
 
