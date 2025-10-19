@@ -5,14 +5,14 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import javax.swing.*;
 
-
 public class rocketry {
-    public static void showGraphs(double thrust, double radius, double mass, double fuelMass, double impulse){
+    public static void Rocketry(double thrust, double radius, double mass, double fuelMass, double impulse, double parachuteRadius){
         //takes average thrust from motor specifications as input
+        //measured radius in meters
         //velocity-time graph
         double altitude=0.0;
         double time=0.0;
-        double timeChange=1;
+        double timeChange=0.1;
         double burnTime=impulse/thrust;
         double vOld=0.0;
         double vNew=0.0;
@@ -20,6 +20,13 @@ public class rocketry {
         double accel;
         double currentMass = 0;
         double dryMass=mass-fuelMass;
+        double apogeeTime = 0.0;
+       // boolean apogeePassed=false;
+        double parachuteDeployTime=0;
+        double dragCoefficient=0.8;
+        double maxAltitude=0.0;
+        double apogee=0.0;
+
         XYSeries velocitySeries=new XYSeries("Velocity");
         XYSeriesCollection velocityDataset=new XYSeriesCollection(velocitySeries);
         XYSeries altitudeSeries=new XYSeries("Altitude");
@@ -34,9 +41,22 @@ public class rocketry {
                 currentMass=dryMass;
                 thrust=0;
             }
-            
+            //Apogee
+            if(altitude>maxAltitude){
+                maxAltitude=altitude;
+                apogee=maxAltitude;
+                apogeeTime=time;
+            }
+            //Parachute deployment
+            parachuteDeployTime=apogeeTime+1;
+            if (time>=parachuteDeployTime){
+                radius=parachuteRadius;
+                dragCoefficient=1.5;
+                //drag=(0.5*1.225*1.5*Math.pow(parachuteRadius,2))*Math.PI*Math.pow(vOld,2);
+            }
+
             //find current veloicty at each time and add to graph
-            drag=(0.5*1.225*0.8*Math.pow(radius,2)*Math.PI*Math.pow(vOld,2));
+            drag=(0.5*1.225*dragCoefficient*Math.pow(radius,2)*Math.PI*Math.pow(vOld,2));
             accel=((thrust-drag-(currentMass*9.8)))/currentMass;
             vNew=vOld+(accel)*(timeChange);
             velocitySeries.add(time,vOld);
@@ -45,6 +65,8 @@ public class rocketry {
             vOld=vNew;
             time+=timeChange;
         }
+        System.out.println("Apogee Time: "+ apogeeTime + " seconds");
+        System.out.println("Parachute Deploy Time: "+parachuteDeployTime + " seconds");
         //show velocity-time graph
         JFreeChart velocityChart=ChartFactory.createXYLineChart("Velocity v.s. Time", "Time (s)", "Velocity (m/s)",velocityDataset);
         ChartPanel velocityChartPanel=new ChartPanel(velocityChart);
@@ -60,27 +82,9 @@ public class rocketry {
         altitudeFrame.add(altitudeChartPanel);
         altitudeFrame.pack();
         altitudeFrame.setVisible(true);
-
-
-
     }
-
-
-
-
-    
-/* 
-    public static double Apogee(double impulse, double thrustAvg, double diameter, double mass, double propMass, double currentTime){
-        double airDensity=1.225;
-        double frontalArea=(Math.PI*diameter)/4;
-        double massPerTime=mass+propMass*(1-(currentTime/burnTime));
-        double Drag=(1/2)*airDensity*0.4*frontalArea*Math.pow(velocity,2);
-        return apogee;
-
-    }
-*/
     public static void main(String[] args) {
-        showGraphs(20.0, 0.04, 1.0, 0.5, 20.0);
+        Rocketry(20.0, 0.08, 1.5, 1.0, 20.0,0.08);
     }
 }
 
